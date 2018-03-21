@@ -1322,29 +1322,46 @@
     };
 
     Annotator.prototype.onEditAnnotation = function(annotation) {
-      var cleanup, offset, update;
-      offset = this.viewer.element.position();
-      update = (function(_this) {
-        return function() {
-          cleanup();
-          return _this.updateAnnotation(annotation);
-        };
-      })(this);
-      cleanup = (function(_this) {
-        return function() {
-          _this.unsubscribe('annotationEditorHidden', cleanup);
-          return _this.unsubscribe('annotationEditorSubmit', update);
-        };
-      })(this);
-      this.subscribe('annotationEditorHidden', cleanup);
-      this.subscribe('annotationEditorSubmit', update);
-      this.viewer.hide();
-      return this.showEditor(annotation, offset);
+        var currentUser=Alfresco.constants.USERNAME;
+        if(currentUser==annotation.user || currentUser==="admin"){
+            var cleanup, offset, update;
+            offset = this.viewer.element.position();
+            update = (function(_this) {
+            return function() {
+              cleanup();
+              return _this.updateAnnotation(annotation);
+            };
+            })(this);
+            cleanup = (function(_this) {
+            return function() {
+              _this.unsubscribe('annotationEditorHidden', cleanup);
+              return _this.unsubscribe('annotationEditorSubmit', update);
+            };
+            })(this);
+            this.subscribe('annotationEditorHidden', cleanup);
+            this.subscribe('annotationEditorSubmit', update);
+            this.viewer.hide();
+            return this.showEditor(annotation, offset);
+        }
+        else{
+              Alfresco.util.PopupManager.displayPrompt(
+             {
+                text:"Access Denied.  You do not have the appropriate permissions to perform edit operation.",
+                button:[
+                {
+                  text:"ok",
+                   handler: function ok_screen()
+                     {
+                    this.destroy();
+                     }
+                }]				
+            });
+	  	}
     };
 
     Annotator.prototype.onDeleteAnnotation = function(annotation) {
      var currentUser=Alfresco.constants.USERNAME;
-      if(currentUser===annotation.user){
+      if(currentUser==annotation.user || currentUser==="admin"){
         this.viewer.hide();
         return this.deleteAnnotation(annotation);
       }else{
