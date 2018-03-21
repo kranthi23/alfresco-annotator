@@ -1343,8 +1343,25 @@
     };
 
     Annotator.prototype.onDeleteAnnotation = function(annotation) {
-      this.viewer.hide();
-      return this.deleteAnnotation(annotation);
+     var currentUser=Alfresco.constants.USERNAME;
+      if(currentUser===annotation.user){
+        this.viewer.hide();
+        return this.deleteAnnotation(annotation);
+      }else{
+        Alfresco.util.PopupManager.displayPrompt(
+              {
+                text:"Access Denied.  You do not have the appropriate permissions to perform delete operation.",
+                button:[
+                {
+                  text:"ok",
+                   handler: function ok_screen()
+                     {
+                        this.destroy();
+                     }
+                }
+                ]				
+              });
+        }
     };
 
     return Annotator;
